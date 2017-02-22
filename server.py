@@ -56,7 +56,6 @@ class UsersHandler(tornado.web.RequestHandler):
         try:
             with con:
                 cur = con.cursor()
-                import ipdb; ipdb.set_trace()
                 cur.execute("SELECT * FROM Users WHERE User ='" +
                             uname + "' AND Password ='" + pwd + "'")
                 cur_resp = cur.fetchone()
