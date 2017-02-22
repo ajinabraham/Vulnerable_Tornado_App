@@ -38,7 +38,7 @@ class SearchHandler(tornado.web.RequestHandler):
     def get(self):
         print "GET ", self.request.uri
         query = self.get_argument("q", default="Query")
-        self.render("search.html", query=query)
+        self.render("search.html", query=query, link=query)
 
 
 class UsersHandler(tornado.web.RequestHandler):
@@ -56,6 +56,7 @@ class UsersHandler(tornado.web.RequestHandler):
         try:
             with con:
                 cur = con.cursor()
+                import ipdb; ipdb.set_trace()
                 cur.execute("SELECT * FROM Users WHERE User ='" +
                             uname + "' AND Password ='" + pwd + "'")
                 cur_resp = cur.fetchone()
