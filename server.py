@@ -4,15 +4,19 @@
 Intentionally Vulnerable Web Application
 """
 import os
+import mimetypes
 import sqlite3 as lite
 import tornado.web
 import tornado.httpserver
+import rasp
+rasp.rasp_init()
 
 
 class Application(tornado.web.Application):
 
     def __init__(self):
         handlers = [
+            (r"/static/(.*)", StaticHandler),
             (r"/", MainHandler),
             (r"/index.html", MainHandler),
             (r"/search", SearchHandler),
@@ -21,10 +25,23 @@ class Application(tornado.web.Application):
         ]
         settings = {
             "template_path": os.path.join(os.path.dirname(__file__), 'templates'),
-            "static_path": os.path.join(os.path.dirname(__file__), 'static'),
             "debug": True
         }
         tornado.web.Application.__init__(self, handlers, **settings)
+
+
+class StaticHandler(tornado.web.RequestHandler):
+
+    def get(self, path):
+        print "GET ", self.request.uri
+        path = 'static/' + path
+        base = os.path.join(os.path.dirname(__file__))
+        static_file = os.path.join(base, path)
+        mime_type, _ = mimetypes.guess_type(static_file)
+        if mime_type:
+            self.set_header("Content-Type", mime_type)
+        with open(static_file, "r") as fpl:
+            self.write(fpl.read())
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -102,7 +119,7 @@ def create_db():
 
 
 def main():
-    create_db()
+    # create_db()
     applicaton = Application()
     http_server = tornado.httpserver.HTTPServer(applicaton)
     http_server.bind(7777, address='127.0.0.1')
