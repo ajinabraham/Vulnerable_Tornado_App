@@ -53,19 +53,15 @@ class UsersHandler(tornado.web.RequestHandler):
         dat = ""
         uname = self.get_argument('username')
         pwd = self.get_argument('password')
-        try:
-            with con:
-                cur = con.cursor()
-                cur.execute("SELECT * FROM Users WHERE User ='" +
-                            uname + "' AND Password ='" + pwd + "'")
-                cur_resp = cur.fetchone()
-            if not cur_resp:
-                dat = "Login Failed"
-            else:
-                dat = "Login Success, Hello " + str(cur_resp[1])
-        except Exception as etr:
-            print "[SQLi ERROR] " + str(etr)
-            dat = str(etr)
+        with con:
+            cur = con.cursor()
+            cur.execute("SELECT * FROM Users WHERE User ='" +
+                        uname + "' AND Password ='" + pwd + "'")
+            cur_resp = cur.fetchone()
+        if not cur_resp:
+            dat = "Login Failed"
+        else:
+            dat = "Login Success, Hello " + str(cur_resp[1])
         self.render("login.html", msg=dat)
 
 
