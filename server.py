@@ -8,8 +8,6 @@ import mimetypes
 import sqlite3 as lite
 import tornado.web
 import tornado.httpserver
-import rasp
-rasp.rasp_init()
 
 
 class Application(tornado.web.Application):
