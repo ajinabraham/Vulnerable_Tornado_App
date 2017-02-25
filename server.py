@@ -4,27 +4,46 @@
 Intentionally Vulnerable Web Application
 """
 import os
+import io
+import mimetypes
 import sqlite3 as lite
 import tornado.web
 import tornado.httpserver
+import string
+import random
 
 
 class Application(tornado.web.Application):
 
     def __init__(self):
         handlers = [
+            (r"/static/(.*)", StaticHandler),
             (r"/", MainHandler),
             (r"/index.html", MainHandler),
             (r"/search", SearchHandler),
             (r"/login.html", UsersHandler),
             (r"/server.html", ServerHandler),
+            (r"/upload", UploadHandler),
         ]
         settings = {
             "template_path": os.path.join(os.path.dirname(__file__), 'templates'),
-            "static_path": os.path.join(os.path.dirname(__file__), 'static'),
             "debug": True
         }
         tornado.web.Application.__init__(self, handlers, **settings)
+
+
+class StaticHandler(tornado.web.RequestHandler):
+
+    def get(self, path):
+        print "GET ", self.request.uri
+        path = 'static/' + path
+        base = os.path.join(os.path.dirname(__file__))
+        static_file = os.path.join(base, path)
+        mime_type, _ = mimetypes.guess_type(static_file)
+        if mime_type:
+            self.set_header("Content-Type", mime_type)
+        with open(static_file, "r") as fpl:
+            self.write(fpl.read())
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -32,6 +51,20 @@ class MainHandler(tornado.web.RequestHandler):
     def get(self):
         print "GET ", self.request.uri
         self.render("index.html")
+
+
+class UploadHandler(tornado.web.RequestHandler):
+
+    def post(self):
+        file1 = self.request.files['file1'][0]
+        original_fname = file1['filename']
+        extension = os.path.splitext(original_fname)[1]
+        fname = ''.join(random.choice(
+            string.ascii_lowercase + string.digits) for x in range(6))
+        final_filename = fname + extension
+        output_file = io.open("/tmp/" + final_filename, 'wb')
+        output_file.write(file1['body'])
+        self.finish("file" + final_filename + " is uploaded")
 
 
 class SearchHandler(tornado.web.RequestHandler):
@@ -102,7 +135,7 @@ def create_db():
 
 
 def main():
-    create_db()
+    # create_db()
     applicaton = Application()
     http_server = tornado.httpserver.HTTPServer(applicaton)
     http_server.bind(7777, address='127.0.0.1')
