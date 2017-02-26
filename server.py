@@ -24,6 +24,7 @@ class Application(tornado.web.Application):
             (r"/login.html", UsersHandler),
             (r"/server.html", ServerHandler),
             (r"/upload", UploadHandler),
+            (r"/read", ContentHandler),
         ]
         settings = {
             "template_path": os.path.join(os.path.dirname(__file__), 'templates'),
@@ -35,7 +36,7 @@ class Application(tornado.web.Application):
 class StaticHandler(tornado.web.RequestHandler):
 
     def get(self, path):
-        print "GET ", self.request.uri
+        #print "GET ", self.request.uri
         path = 'static/' + path
         base = os.path.join(os.path.dirname(__file__))
         static_file = os.path.join(base, path)
@@ -64,7 +65,19 @@ class UploadHandler(tornado.web.RequestHandler):
         final_filename = fname + extension
         output_file = io.open("/tmp/" + final_filename, 'wb')
         output_file.write(file1['body'])
+        output_file.close()
         self.finish("file" + final_filename + " is uploaded")
+
+
+class ContentHandler(tornado.web.RequestHandler):
+
+    def get(self):
+        file_name = self.get_argument("file", default="car")
+        content = ''
+        read_file = io.open("read/" + file_name, 'rb')
+        content = read_file.read()
+        read_file.close()
+        self.write(content)
 
 
 class SearchHandler(tornado.web.RequestHandler):
