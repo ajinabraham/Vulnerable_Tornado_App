@@ -85,6 +85,7 @@ class SearchHandler(tornado.web.RequestHandler):
     def get(self):
         print "GET ", self.request.uri
         query = self.get_argument("q", default="Query")
+        self.set_header('X-XSS-Protection', '0')
         self.render("search.html", query=query, link=query)
 
 
@@ -151,9 +152,9 @@ def main():
     # create_db()
     applicaton = Application()
     http_server = tornado.httpserver.HTTPServer(applicaton)
-    http_server.bind(7777, address='127.0.0.1')
+    http_server.bind(7776, address='127.0.0.1')
     http_server.start()
-    print "Server Started: http://127.0.0.1:7777"
+    print "Server Started: http://127.0.0.1:7776"
     tornado.ioloop.IOLoop.instance().start()
 
 if __name__ == "__main__":
