@@ -152,9 +152,9 @@ def main():
     # create_db()
     applicaton = Application()
     http_server = tornado.httpserver.HTTPServer(applicaton)
-    http_server.bind(7776, address='127.0.0.1')
+    http_server.bind(7777, address='0.0.0.0')
     http_server.start()
-    print "Server Started: http://127.0.0.1:7776"
+    print "Server Started: http://0.0.0.0:7777"
     tornado.ioloop.IOLoop.instance().start()
 
 if __name__ == "__main__":
